@@ -1,1 +1,0 @@
-Use "python setup.py install --user" when installing PAHO library to avoid permission errors when compiling and running files

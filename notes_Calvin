@@ -1,0 +1,14 @@
+1. Use "python setup.py install --user" when installing PAHO library to avoid permission errors when compiling and running files
+2. Things.PH is my broker. Not MQTT lens. It's simply a GUI that can accept broker services for you.
+
+General idea.
+-Connect (To broker/intermediate GUI)
+-Subscribe to messages (recieve messages)
+-Publish to messages (send messages)
+-Check the recieved messages / callback confirmation
+-Loops, repeatitively send messages or recieve message until process is finished
+
+
+Questions for myself.
+What is a callback function?
+
