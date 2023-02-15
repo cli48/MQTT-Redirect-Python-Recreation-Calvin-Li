@@ -3,7 +3,7 @@ from random import randrange, uniform
 import time
 
 mqttBroker ="mqtt.things.ph"
-client = mqtt.Client(client_id="Re-direction broker Calvin", clean_session=False) #gives client a name
+client = mqtt.Client(client_id="Re-direction_broker_MQTT_CALVIN", clean_session=False) #gives client a name
 client.username_pw_set("63e964c00317e3273ecc3165","PQ6xg1TCIKTuSf0QgpFER7c3") #password and user authentication
 client.connect(mqttBroker) #connects to broker
 
