@@ -1,38 +1,48 @@
 import paho.mqtt.client as mqtt
+import paho.mqtt.subscribe as subscribe
+from random import randrange, uniform
 import time
-#vars--------------------------------------------------------------------------------------------------------------
-ClientID_Calvin = "Re_direct_broker_MQTT_CALVIN"
-broker="mqtt.things.ph" #Can use IP or DNS of your broker, MQTT LENS IS NOT THE BROKER.
+import json
 
-#end of vars-------------------------------------------------------------------------------------------------------
+def on_message(client, obj, msg): #handling of code from subscribed topics
+    payload_string = msg.payload.decode() #decodes to the bits of the payload into a string
+    #print(payload_string)
+    data = json.loads(payload_string) #unpackages and offloads data from JSON into an accessible list
 
-#defs
-def on_connect(client, userdata, flags, rc): #function lets me know if connection is established else gives return code
-   if rc==0:
-        print("Connection ok.\n")
-   else:
-        print("Bad connection. Return code = ",rc)
+    temp = data['payload_fields']['temperature'] #extracting values into workable numbers
+    pressure = data['payload_fields']['pressure']
+    altitude = data['payload_fields']['altitude']
+
+    temp = (temp*1.8) + 32 #convert C to F
+    pressure = pressure/6.895 #convert kpa to psi
+    altitude = altitude*3.281 #Meters to feet
+
+    edited_sensor_data = {"hardware_serial": "ESP_32", #Re serializes JSON into a string format for publishing
+               "payload_fields": {"temperature": temp,
+                                  "pressure": pressure,
+                                  "altitude": altitude}}
+    #print(payload_string)
+    print(edited_sensor_data)
+
+    client.publish("test2",edited_sensor_data,qos=0,retain=False) #publish edited data to topic "test2"
+    print("Published\n")
+    #time.sleep(1)
+
+def on_connect(client, userdata, flags, rc):
+  print("Connected with result code "+str(rc))
+  client.subscribe("Testing")
 
 
-#end of defs--------------------------------------------------------------------------------------------------------------
-
-mqtt.Client(client_id="Test", clean_session=False)
-#client_id refers to Client ID on MQTTlens, clean session determines if broker info is wiped
-#userdata = Payload being sent,protocal is version of MQTT, either  MQTTv31 or MQTTv311 (web sockets), transport is declaring the usage of TCP protocal
-
-client = mqtt.Client(ClientID_Calvin) #Client ID name, dont confuse for connection name. Variable up top for ease of use.
-client.on_connect = on_connect #on_connect callback function to determine when MQTT client connects successfully w/o blocking the execution of the rest of the program.
-
-print("Connecting to broker: ",broker)
-
-client.connect(broker)
-
-time.sleep(4) #allows 4 seconds of time to pass so connection can be established before continuing
-client.loop_start()
+mqttBroker ="mqtt.things.ph"
+client = mqtt.Client(client_id="Re-direction_broker_MQTT_CALVIN", clean_session=False) #gives client a name
+client.username_pw_set("63e964c00317e3273ecc3165","PQ6xg1TCIKTuSf0QgpFER7c3") #password and user authentication
+client.connect(mqttBroker) #connects to broker
+client.on_message = on_message
+client.on_connect = on_connect
 
 
-client.loop_stop()
-client.disconnect()
+client.loop_forever()
+
 
 
 
